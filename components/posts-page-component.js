@@ -3,7 +3,6 @@ import { renderHeaderComponent } from "./header-component.js";
 import { posts, goToPage } from "../index.js";
 
 export function renderPostsPageComponent({ appEl }) {
-  // TODO: реализовать рендер постов из api
   console.log("Актуальный список постов:", posts);
 
   /**
@@ -30,7 +29,7 @@ export function renderPostsPageComponent({ appEl }) {
                     </div>
                     <p class="post-text">
                       <span class="user-name">${post.user.name}</span>
-                      ${post.user.description}
+                      ${post.description}
                     </p>
                     <p class="post-date">
                       19 минут назад
