@@ -1,4 +1,4 @@
-import { getPosts, newPost, getUserPosts, getDislike } from "./api.js";
+import { getPosts, newPost, getUserPosts, getDislike, getLike } from "./api.js";
 import { renderAddPostPageComponent } from "./components/add-post-page-component.js";
 import { renderAuthPageComponent } from "./components/auth-page-component.js";
 import {
@@ -16,6 +16,9 @@ import {
   saveUserToLocalStorage,
 } from "./helpers.js";
 
+import { ru } from "date-fns/locale";
+import { formatDistanceToNow } from "./node_modules/date-fns";
+
 export let user = getUserFromLocalStorage();
 export let page = null;
 export let posts = [];
@@ -29,7 +32,7 @@ export const toggleLike = ({postId}) => {
   const index = posts.findIndex((post) => post.id === postId);
 
   if (posts[index].isLiked) {
-    getDislike({ token: getToken(), id: postId}).then((updatePost) => {
+    getLike({ token: getToken(), id: postId}).then((updatePost) => {
       posts[index].likes = updatePost.post.likes;
       posts[index].isLiked = false;
       renderApp();
@@ -41,6 +44,10 @@ export const toggleLike = ({postId}) => {
       renderApp();
       });
   }
+};
+
+export const formatDate = (date) => {
+  return formatDistanceToNow(new Date(date), { addSuffix: true, locale: ru });
 };
 
 export const logout = () => {
@@ -79,6 +86,7 @@ export const goToPage = (newPage, data) => {
           renderApp();
         })
         .catch((error) => {
+          alert("Кажется, у вас сломался интернет, попробуйте позже");
           console.error(error);
           goToPage(POSTS_PAGE);
         });
@@ -133,7 +141,7 @@ const renderApp = () => {
       onAddPostClick({ description, imageUrl }) {
         // TODO: реализовать добавление поста в API
         newPost({
-          description: description,
+          description: description.replaceAll('<','&lt;').replaceAll('>','&gt;'),
           imageUrl: imageUrl,
           token: getToken(),
         });

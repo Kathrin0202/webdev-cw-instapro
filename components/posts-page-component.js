@@ -1,8 +1,7 @@
-import { LOADING_PAGE, USER_POSTS_PAGE } from "../routes.js";
+import { USER_POSTS_PAGE } from "../routes.js";
 import { renderHeaderComponent } from "./header-component.js";
-import { posts, goToPage, user, getToken, toggleLike } from "../index.js";
-import { getLike, getDislike } from "../api.js";
-import { POSTS_PAGE } from "../routes.js";
+import { posts, goToPage, user, toggleLike, formatDate } from "../index.js";
+
 
 
 export function renderPostsPageComponent({ appEl }) {
@@ -43,7 +42,7 @@ export function renderPostsPageComponent({ appEl }) {
                       ${post.description}
                     </p>
                     <p class="post-date">
-                      19 минут назад
+                      ${formatDate(post.createdAt)}
                     </p>
                   </li>`;
   }).join("");
@@ -69,7 +68,9 @@ export function renderPostsPageComponent({ appEl }) {
   }
 
 for (let likeEl of document.querySelectorAll(".like-button")) {
-  likeEl.addEventListener("click", () => {
+  likeEl.addEventListener("click", (event) => {
+    event.stopPropagation();
+    likeEl.classList.add("load-like");
     if(!user) {
       alert('Авторизуйся');
       return;
