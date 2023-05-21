@@ -1,6 +1,9 @@
-import { USER_POSTS_PAGE } from "../routes.js";
+import { LOADING_PAGE, USER_POSTS_PAGE } from "../routes.js";
 import { renderHeaderComponent } from "./header-component.js";
-import { posts, goToPage } from "../index.js";
+import { posts, goToPage, user, getToken, toggleLike } from "../index.js";
+import { getLike, getDislike } from "../api.js";
+import { POSTS_PAGE } from "../routes.js";
+
 
 export function renderPostsPageComponent({ appEl }) {
   console.log("Актуальный список постов:", posts);
@@ -9,22 +12,30 @@ export function renderPostsPageComponent({ appEl }) {
    * TODO: чтобы отформатировать дату создания поста в виде "19 минут назад"
    * можно использовать https://date-fns.org/v2.29.3/docs/formatDistanceToNow
    */
-  const renderPosts = () => {
   const appHtml = posts.map((post, index) => {
+
+    let likes = '0';
+    if (post.likes.length === 1) {
+      likes = post.likes[0].name
+    }else if (post.likes.length === 2) {
+      likes = `${post.likes[0].name}, ${post.likes[1].name}`;
+    } else if (post.likes.length > 2) {
+      likes = `${post.likes[0].name}, ${post.likes[1].name} и еще ${post.likes.length - 2} человек`;
+    }
   return ` <li data-index= "${index}"class="post">
-                    <div class="post-header" data-user-id="${post.id}">
-                        <img src="${post.imageUrl}" class="post-header__user-image">
+                    <div class="post-header" data-user-id="${post.user.id}">
+                        <img src="${post.user.imageUrl}" class="post-header__user-image">
                         <p class="post-header__user-name">${post.user.name}</p>
                     </div>
                     <div class="post-image-container">
-                      <img class="post-image" src="${post.user.imageUrl}">
+                      <img class="post-image" src="${post.imageUrl}">
                     </div>
                     <div class="post-likes">
-                      <button data-post-id="${post.likes.id}" class="like-button">
-                        <img src="./assets/images/like-active.svg">
+                      <button data-post-id="${post.id}" class="like-button">
+                        <img src="./assets/images/${post.isLiked ? "like-active.svg" : "like-not-active.svg"}">
                       </button>
                       <p class="post-likes-text">
-                        Нравится: <strong>2</strong>
+                        Нравится: <strong>${likes}</strong>
                       </p>
                     </div>
                     <p class="post-text">
@@ -56,6 +67,14 @@ export function renderPostsPageComponent({ appEl }) {
       });
     });
   }
+
+for (let likeEl of document.querySelectorAll(".like-button")) {
+  likeEl.addEventListener("click", () => {
+    if(!user) {
+      alert('Авторизуйся');
+      return;
+    }
+    toggleLike({postId: likeEl.dataset.postId});
+  });
 }
-renderPosts();
-}
+  }
